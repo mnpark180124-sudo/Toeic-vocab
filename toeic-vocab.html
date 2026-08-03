@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>실전 단어장 — 토익 필수 어휘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#152238;
+    --navy-2:#1f3153;
+    --paper:#f6f4ef;
+    --paper-2:#ece8de;
+    --gold:#c99a44;
+    --gold-2:#e0b768;
+    --red:#a94438;
+    --green:#3f6b4f;
+    --line: rgba(21,34,56,0.12);
+    --shadow: 0 18px 40px -18px rgba(21,34,56,0.35);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    font-family:'IBM Plex Sans KR', sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1c2c4a 0%, var(--navy) 55%, #0f1826 100%);
+    color:var(--paper);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding: 28px 16px 60px;
+  }
+  .wrap{ width:100%; max-width:460px; }
+
+  header{ text-align:center; margin-bottom:22px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--gold-2); opacity:.9; margin-bottom:6px;
+  }
+  h1{
+    font-size:26px; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em;
+  }
+  .sub{ font-size:13px; color:rgba(246,244,239,0.6); }
+
+  /* Category chips */
+  .chips{
+    display:flex; gap:8px; overflow-x:auto; padding:14px 2px 20px;
+    scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex:0 0 auto; padding:7px 14px; border-radius:999px;
+    border:1px solid rgba(246,244,239,0.18); background:rgba(246,244,239,0.05);
+    color:rgba(246,244,239,0.75); font-size:12.5px; font-weight:500;
+    cursor:pointer; white-space:nowrap; transition:.15s;
+  }
+  .chip.active{ background:var(--gold-2); color:var(--navy); border-color:var(--gold-2); font-weight:600; }
+
+  /* Progress / stamp bar */
+  .stats{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:rgba(246,244,239,0.55); margin-bottom:14px; padding:0 4px;
+  }
+  .stats b{ color:var(--gold-2); font-weight:600; }
+  .progress-track{
+    height:4px; border-radius:2px; background:rgba(246,244,239,0.12);
+    margin-bottom:22px; overflow:hidden;
+  }
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-2)); width:0%; transition:width .3s; }
+
+  /* Card */
+  .stage{ perspective:1400px; margin-bottom:22px; }
+  .card{
+    position:relative; height:300px; border-radius:20px;
+    transform-style:preserve-3d; transition:transform .55s cubic-bezier(.2,.9,.25,1);
+    cursor:pointer;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:20px; padding:26px;
+    display:flex; flex-direction:column;
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+  }
+  .face-front{
+    background: linear-gradient(160deg, var(--paper) 0%, var(--paper-2) 100%);
+    color:var(--navy);
+    justify-content:space-between;
+  }
+  .face-back{
+    background: linear-gradient(160deg, var(--navy-2) 0%, var(--navy) 100%);
+    color:var(--paper);
+    transform:rotateY(180deg);
+    justify-content:space-between;
+  }
+  .card-index{
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:.14em; text-transform:uppercase; opacity:.55;
+  }
+  .card-mid{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .word{ font-size:32px; font-weight:700; letter-spacing:-0.01em; margin-bottom:8px; }
+  .pos{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    padding:3px 9px; border-radius:5px; background:rgba(21,34,56,0.08);
+    color:var(--navy-2); width:fit-content; margin-bottom:14px; font-weight:600;
+  }
+  .face-back .pos{ background:rgba(246,244,239,0.12); color:var(--gold-2); }
+  .example{ font-size:14px; line-height:1.55; opacity:.75; }
+  .meaning{ font-size:24px; font-weight:600; margin-bottom:10px; }
+  .meaning-ex{ font-size:14px; line-height:1.6; color:rgba(246,244,239,0.65); }
+  .hint{ font-size:11px; text-align:center; opacity:.5; font-family:'IBM Plex Mono', monospace; }
+
+  /* Controls */
+  .actions{ display:flex; gap:10px; margin-bottom:14px; }
+  .btn{
+    flex:1; padding:15px 0; border-radius:14px; border:none;
+    font-size:14.5px; font-weight:600; cursor:pointer; transition:.15s;
+    font-family:'IBM Plex Sans KR', sans-serif;
+  }
+  .btn-again{ background:rgba(169,68,56,0.15); color:#e08c80; border:1px solid rgba(169,68,56,0.35); }
+  .btn-again:active{ background:rgba(169,68,56,0.3); }
+  .btn-known{ background:var(--green); color:#e9f3ec; }
+  .btn-known:active{ filter:brightness(1.1); }
+
+  .nav-row{ display:flex; justify-content:center; gap:18px; margin-top:6px; }
+  .nav-btn{
+    background:none; border:none; color:rgba(246,244,239,0.5);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; cursor:pointer;
+    padding:8px 6px;
+  }
+  .nav-btn:active{ color:var(--gold-2); }
+
+  footer{ margin-top:30px; text-align:center; font-size:11px; color:rgba(246,244,239,0.3); font-family:'IBM Plex Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Business &amp; Exam Vocabulary</div>
+    <h1>실전 단어장</h1>
+    <div class="sub">토익·실무 영어 필수 어휘 플래시카드</div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="stats">
+    <span>진행 <b id="statPos">1</b> / <span id="statTotal">0</span></span>
+    <span>외운 단어 <b id="statKnown">0</b></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="face face-front">
+        <div class="card-index" id="frontIndex">001</div>
+        <div class="card-mid">
+          <div class="word" id="wordText">—</div>
+          <div class="pos" id="posText">n.</div>
+          <div class="example" id="exampleText"></div>
+        </div>
+        <div class="hint">탭하면 뜻이 보여요</div>
+      </div>
+      <div class="face face-back">
+        <div class="card-index" id="backIndex">001</div>
+        <div class="card-mid">
+          <div class="pos" id="posTextBack">n.</div>
+          <div class="meaning" id="meaningText">—</div>
+          <div class="meaning-ex" id="meaningExText"></div>
+        </div>
+        <div class="hint">탭하면 다시 단어가 보여요</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-again" id="btnAgain">다시 볼게요</button>
+    <button class="btn btn-known" id="btnKnown">외웠어요 ✓</button>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="btnPrev">← 이전</button>
+    <button class="nav-btn" id="btnShuffle">🔀 섞기</button>
+    <button class="nav-btn" id="btnReset">진행 초기화</button>
+  </div>
+
+  <footer>STUDY DECK — TOEIC CORE 100</footer>
+</div>
+
+<script>
+const VOCAB = [
+  {w:"attend",pos:"v.",ex:"Please attend the meeting on time.",m:"참석하다",mx:"회의에 제시간에 참석해 주세요.",cat:"meeting"},
+  {w:"agenda",pos:"n.",ex:"Let's go over today's agenda first.",m:"안건, 의제",mx:"먼저 오늘의 안건을 살펴봅시다.",cat:"meeting"},
+  {w:"postpone",pos:"v.",ex:"The conference was postponed until March.",m:"연기하다",mx:"그 회의는 3월로 연기되었다.",cat:"meeting"},
+  {w:"reschedule",pos:"v.",ex:"Can we reschedule the interview?",m:"일정을 재조정하다",mx:"면접 일정을 다시 잡을 수 있을까요?",cat:"meeting"},
+  {w:"minutes",pos:"n.",ex:"She took the minutes of the meeting.",m:"회의록",mx:"그녀가 회의록을 작성했다.",cat:"meeting"},
+  {w:"proposal",pos:"n.",ex:"The board approved the new proposal.",m:"제안(서)",mx:"이사회가 새 제안서를 승인했다.",cat:"meeting"},
+  {w:"colleague",pos:"n.",ex:"I discussed it with my colleague.",m:"동료",mx:"나는 동료와 그것에 대해 논의했다.",cat:"office"},
+  {w:"supervisor",pos:"n.",ex:"Report any issues to your supervisor.",m:"관리자, 상사",mx:"문제가 있으면 상사에게 보고하세요.",cat:"office"},
+  {w:"deadline",pos:"n.",ex:"We need to meet the deadline.",m:"마감 기한",mx:"우리는 마감 기한을 지켜야 한다.",cat:"office"},
+  {w:"assignment",pos:"n.",ex:"He finished the assignment early.",m:"과제, 업무",mx:"그는 업무를 일찍 끝냈다.",cat:"office"},
+  {w:"efficient",pos:"adj.",ex:"This is a more efficient way to work.",m:"효율적인",mx:"이것이 더 효율적인 작업 방식이다.",cat:"office"},
+  {w:"productivity",pos:"n.",ex:"New tools improved our productivity.",m:"생산성",mx:"새로운 도구가 생산성을 향상시켰다.",cat:"office"},
+  {w:"vacant",pos:"adj.",ex:"The manager position is currently vacant.",m:"공석인, 비어있는",mx:"관리자 자리가 현재 공석이다.",cat:"hr"},
+  {w:"applicant",pos:"n.",ex:"Only one applicant met the requirements.",m:"지원자",mx:"오직 한 명의 지원자만 조건을 충족했다.",cat:"hr"},
+  {w:"resume",pos:"n.",ex:"Please attach your resume to the email.",m:"이력서",mx:"이메일에 이력서를 첨부해 주세요.",cat:"hr"},
+  {w:"qualified",pos:"adj.",ex:"She is highly qualified for the role.",m:"자격을 갖춘",mx:"그녀는 그 직무에 매우 적합한 자격을 갖췄다.",cat:"hr"},
+  {w:"promote",pos:"v.",ex:"He was promoted to senior manager.",m:"승진시키다",mx:"그는 수석 매니저로 승진했다.",cat:"hr"},
+  {w:"salary",pos:"n.",ex:"The salary includes health benefits.",m:"급여",mx:"급여에는 건강 보험 혜택이 포함된다.",cat:"hr"},
+  {w:"contract",pos:"n.",ex:"Both parties signed the contract.",m:"계약(서)",mx:"양측이 계약서에 서명했다.",cat:"contract"},
+  {w:"clause",pos:"n.",ex:"Read the clause about cancellation carefully.",m:"조항",mx:"해지 관련 조항을 주의 깊게 읽으세요.",cat:"contract"},
+  {w:"terminate",pos:"v.",ex:"The company terminated the agreement.",m:"종료하다, 해지하다",mx:"그 회사는 계약을 해지했다.",cat:"contract"},
+  {w:"obligation",pos:"n.",ex:"You have an obligation to pay on time.",m:"의무",mx:"당신은 제때 지불할 의무가 있다.",cat:"contract"},
+  {w:"warranty",pos:"n.",ex:"This product comes with a two-year warranty.",m:"보증(서)",mx:"이 제품은 2년 보증이 제공된다.",cat:"contract"},
+  {w:"invoice",pos:"n.",ex:"Please send the invoice by Friday.",m:"청구서, 송장",mx:"금요일까지 청구서를 보내 주세요.",cat:"finance"},
+  {w:"revenue",pos:"n.",ex:"Revenue increased by 12% this quarter.",m:"수익, 매출",mx:"이번 분기 매출이 12% 증가했다.",cat:"finance"},
+  {w:"expenditure",pos:"n.",ex:"The company reduced its expenditure.",m:"지출",mx:"그 회사는 지출을 줄였다.",cat:"finance"},
+  {w:"budget",pos:"n.",ex:"We are over budget this month.",m:"예산",mx:"이번 달 예산을 초과했다.",cat:"finance"},
+  {w:"reimburse",pos:"v.",ex:"The company will reimburse your travel costs.",m:"환급하다, 상환하다",mx:"회사가 출장 경비를 환급해 줄 것이다.",cat:"finance"},
+  {w:"fiscal",pos:"adj.",ex:"The fiscal year ends in December.",m:"회계의",mx:"회계 연도는 12월에 끝난다.",cat:"finance"},
+  {w:"merger",pos:"n.",ex:"The merger created a larger company.",m:"합병",mx:"그 합병으로 더 큰 회사가 탄생했다.",cat:"finance"},
+  {w:"itinerary",pos:"n.",ex:"Check the itinerary before you pack.",m:"여행 일정표",mx:"짐을 싸기 전에 여행 일정표를 확인하세요.",cat:"travel"},
+  {w:"departure",pos:"n.",ex:"The departure time was delayed.",m:"출발",mx:"출발 시간이 지연되었다.",cat:"travel"},
+  {w:"boarding",pos:"n.",ex:"Boarding begins thirty minutes before departure.",m:"탑승",mx:"탑승은 출발 30분 전에 시작된다.",cat:"travel"},
+  {w:"accommodation",pos:"n.",ex:"The hotel offers comfortable accommodation.",m:"숙박(시설)",mx:"그 호텔은 편안한 숙박시설을 제공한다.",cat:"travel"},
+  {w:"reservation",pos:"n.",ex:"I made a reservation for two nights.",m:"예약",mx:"나는 이틀 밤 예약을 했다.",cat:"travel"},
+  {w:"customs",pos:"n.",ex:"You must pass through customs first.",m:"세관",mx:"먼저 세관을 통과해야 한다.",cat:"travel"},
+  {w:"complimentary",pos:"adj.",ex:"Breakfast is complimentary for guests.",m:"무료의",mx:"투숙객에게 조식이 무료로 제공된다.",cat:"travel"},
+  {w:"shipment",pos:"n.",ex:"The shipment arrived a day late.",m:"수송(물), 배송",mx:"그 배송물이 하루 늦게 도착했다.",cat:"logistics"},
+  {w:"inventory",pos:"n.",ex:"We need to check the inventory.",m:"재고",mx:"우리는 재고를 확인해야 한다.",cat:"logistics"},
+  {w:"warehouse",pos:"n.",ex:"The goods are stored in a warehouse.",m:"창고",mx:"상품은 창고에 보관되어 있다.",cat:"logistics"},
+  {w:"supplier",pos:"n.",ex:"We changed our supplier last year.",m:"공급업체",mx:"우리는 작년에 공급업체를 바꿨다.",cat:"logistics"},
+  {w:"logistics",pos:"n.",ex:"The logistics team handles delivery.",m:"물류",mx:"물류 팀이 배송을 담당한다.",cat:"logistics"},
+  {w:"damaged",pos:"adj.",ex:"Two boxes arrived damaged.",m:"손상된",mx:"상자 두 개가 손상된 채로 도착했다.",cat:"logistics"},
+  {w:"customer",pos:"n.",ex:"Customer satisfaction is our top priority.",m:"고객",mx:"고객 만족이 우리의 최우선 순위다.",cat:"customer"},
+  {w:"complaint",pos:"n.",ex:"The manager handled the complaint politely.",m:"불만, 항의",mx:"매니저가 불만을 정중하게 처리했다.",cat:"customer"},
+  {w:"refund",pos:"n.",ex:"She requested a full refund.",m:"환불",mx:"그녀는 전액 환불을 요청했다.",cat:"customer"},
+  {w:"feedback",pos:"n.",ex:"We appreciate your feedback.",m:"의견, 피드백",mx:"소중한 의견 감사드립니다.",cat:"customer"},
+  {w:"loyal",pos:"adj.",ex:"We value our loyal customers.",m:"충성스러운",mx:"우리는 충성 고객을 소중히 여긴다.",cat:"customer"},
+  {w:"satisfaction",pos:"n.",ex:"The survey measures customer satisfaction.",m:"만족(도)",mx:"이 설문은 고객 만족도를 측정한다.",cat:"customer"},
+  {w:"campaign",pos:"n.",ex:"The ad campaign launched last week.",m:"캠페인",mx:"그 광고 캠페인은 지난주에 시작되었다.",cat:"marketing"},
+  {w:"advertisement",pos:"n.",ex:"The advertisement targets young adults.",m:"광고",mx:"그 광고는 젊은 성인을 대상으로 한다.",cat:"marketing"},
+  {w:"brand",pos:"n.",ex:"The brand is known for quality.",m:"브랜드",mx:"그 브랜드는 품질로 유명하다.",cat:"marketing"},
+  {w:"promotion",pos:"n.",ex:"There's a promotion this weekend only.",m:"판촉(행사), 홍보",mx:"이번 주말에만 판촉 행사가 있다.",cat:"marketing"},
+  {w:"target audience",pos:"n.",ex:"Know your target audience before you advertise.",m:"목표 고객층",mx:"광고하기 전에 목표 고객층을 파악하세요.",cat:"marketing"},
+  {w:"launch",pos:"v.",ex:"The company will launch a new product.",m:"출시하다",mx:"그 회사는 신제품을 출시할 것이다.",cat:"marketing"},
+  {w:"negotiate",pos:"v.",ex:"They negotiated a better price.",m:"협상하다",mx:"그들은 더 나은 가격을 협상했다.",cat:"business"},
+  {w:"deal",pos:"n.",ex:"We closed the deal yesterday.",m:"거래, 계약",mx:"우리는 어제 거래를 성사시켰다.",cat:"business"},
+  {w:"stakeholder",pos:"n.",ex:"All stakeholders were informed of the change.",m:"이해관계자",mx:"모든 이해관계자에게 변경 사항이 통보되었다.",cat:"business"},
+  {w:"strategy",pos:"n.",ex:"Our strategy focuses on growth.",m:"전략",mx:"우리의 전략은 성장에 초점을 맞춘다.",cat:"business"},
+  {w:"competitor",pos:"n.",ex:"Our competitor released a similar product.",m:"경쟁사",mx:"우리 경쟁사가 비슷한 제품을 출시했다.",cat:"business"},
+  {w:"acquire",pos:"v.",ex:"The firm acquired a smaller company.",m:"인수하다, 취득하다",mx:"그 회사는 작은 회사를 인수했다.",cat:"business"},
+  {w:"expand",pos:"v.",ex:"The business plans to expand overseas.",m:"확장하다",mx:"그 사업체는 해외로 확장할 계획이다.",cat:"business"},
+  {w:"conduct",pos:"v.",ex:"They conducted a survey last month.",m:"실시하다, 수행하다",mx:"그들은 지난달에 설문조사를 실시했다.",cat:"business"},
+  {w:"implement",pos:"v.",ex:"The new policy will be implemented soon.",m:"시행하다",mx:"새 정책이 곧 시행될 것이다.",cat:"business"},
+  {w:"comply",pos:"v.",ex:"All staff must comply with the rules.",m:"준수하다",mx:"모든 직원은 규정을 준수해야 한다.",cat:"business"},
+  {w:"regulation",pos:"n.",ex:"New regulations take effect next month.",m:"규정, 규제",mx:"새 규정이 다음 달부터 시행된다.",cat:"business"},
+  {w:"authorize",pos:"v.",ex:"Only managers can authorize refunds.",m:"승인하다, 권한을 주다",mx:"관리자만 환불을 승인할 수 있다.",cat:"business"},
+  {w:"submit",pos:"v.",ex:"Please submit the report by Monday.",m:"제출하다",mx:"월요일까지 보고서를 제출해 주세요.",cat:"office"},
+  {w:"draft",pos:"n.",ex:"He wrote the first draft of the report.",m:"초안",mx:"그가 보고서의 첫 초안을 작성했다.",cat:"office"},
+  {w:"revise",pos:"v.",ex:"Please revise the document before sending.",m:"수정하다",mx:"보내기 전에 문서를 수정해 주세요.",cat:"office"},
+  {w:"approve",pos:"v.",ex:"The manager approved the request.",m:"승인하다",mx:"매니저가 그 요청을 승인했다.",cat:"office"},
+  {w:"attach",pos:"v.",ex:"I attached the file to the email.",m:"첨부하다",mx:"나는 이메일에 파일을 첨부했다.",cat:"office"},
+  {w:"notify",pos:"v.",ex:"We will notify you of any changes.",m:"통지하다",mx:"변경 사항이 있으면 통지해 드리겠습니다.",cat:"office"},
+  {w:"confirm",pos:"v.",ex:"Please confirm your attendance by email.",m:"확인하다",mx:"이메일로 참석 여부를 확인해 주세요.",cat:"office"},
+  {w:"cancel",pos:"v.",ex:"The event was cancelled due to rain.",m:"취소하다",mx:"그 행사는 비 때문에 취소되었다.",cat:"office"},
+  {w:"renew",pos:"v.",ex:"Don't forget to renew your subscription.",m:"갱신하다",mx:"구독을 갱신하는 것을 잊지 마세요.",cat:"office"},
+  {w:"eligible",pos:"adj.",ex:"You are eligible for a discount.",m:"자격이 있는",mx:"당신은 할인을 받을 자격이 있다.",cat:"office"},
+  {w:"mandatory",pos:"adj.",ex:"Attendance is mandatory for all staff.",m:"의무적인, 필수의",mx:"전 직원 참석은 필수다.",cat:"office"},
+  {w:"optional",pos:"adj.",ex:"The training session is optional.",m:"선택적인",mx:"그 교육 세션은 선택 사항이다.",cat:"office"},
+  {w:"instruct",pos:"v.",ex:"The manual instructs users to reset the device.",m:"지시하다, 설명하다",mx:"설명서는 사용자에게 기기 초기화를 지시한다.",cat:"office"},
+  {w:"maintenance",pos:"n.",ex:"The elevator is under maintenance.",m:"유지보수, 관리",mx:"엘리베이터는 유지보수 중이다.",cat:"logistics"},
+  {w:"defective",pos:"adj.",ex:"The store replaced the defective item.",m:"결함이 있는",mx:"매장은 결함이 있는 제품을 교환해 주었다.",cat:"customer"},
+  {w:"durable",pos:"adj.",ex:"This material is very durable.",m:"내구성이 있는",mx:"이 소재는 내구성이 매우 뛰어나다.",cat:"logistics"},
+  {w:"guarantee",pos:"v.",ex:"We guarantee same-day delivery.",m:"보장하다",mx:"우리는 당일 배송을 보장한다.",cat:"customer"},
+  {w:"outstanding",pos:"adj.",ex:"There is an outstanding balance on the account.",m:"미지불된, 뛰어난",mx:"그 계좌에는 미지불 잔액이 있다.",cat:"finance"},
+  {w:"overdue",pos:"adj.",ex:"Your payment is now overdue.",m:"기한이 지난, 연체된",mx:"귀하의 대금이 현재 연체되었습니다.",cat:"finance"},
+  {w:"transaction",pos:"n.",ex:"The transaction was completed successfully.",m:"거래",mx:"그 거래는 성공적으로 완료되었다.",cat:"finance"},
+  {w:"withdraw",pos:"v.",ex:"He withdrew money from the ATM.",m:"인출하다, 철회하다",mx:"그는 ATM에서 돈을 인출했다.",cat:"finance"},
+  {w:"deposit",pos:"n.",ex:"A deposit is required to reserve the room.",m:"보증금, 예치금",mx:"방을 예약하려면 보증금이 필요하다.",cat:"finance"},
+  {w:"exceed",pos:"v.",ex:"Sales exceeded our expectations.",m:"초과하다",mx:"매출이 우리의 기대를 초과했다.",cat:"finance"},
+  {w:"decline",pos:"v.",ex:"Profits declined slightly this year.",m:"감소하다, 거절하다",mx:"올해 이익이 약간 감소했다.",cat:"finance"},
+  {w:"fluctuate",pos:"v.",ex:"Prices fluctuate depending on demand.",m:"변동하다",mx:"가격은 수요에 따라 변동한다.",cat:"finance"},
+  {w:"consecutive",pos:"adj.",ex:"Sales grew for three consecutive months.",m:"연속적인",mx:"매출이 3개월 연속으로 증가했다.",cat:"business"},
+  {w:"anticipate",pos:"v.",ex:"We anticipate strong demand next quarter.",m:"예상하다",mx:"우리는 다음 분기에 강한 수요를 예상한다.",cat:"business"},
+  {w:"prioritize",pos:"v.",ex:"You should prioritize urgent tasks first.",m:"우선시하다",mx:"급한 업무를 먼저 우선시해야 한다.",cat:"office"},
+  {w:"delegate",pos:"v.",ex:"A good manager knows how to delegate tasks.",m:"위임하다",mx:"좋은 관리자는 업무를 위임할 줄 안다.",cat:"office"},
+  {w:"onboard",pos:"v.",ex:"HR will onboard new employees this week.",m:"적응시키다, 합류시키다",mx:"인사팀이 이번 주 신입 직원을 적응시킬 것이다.",cat:"hr"},
+  {w:"headquarters",pos:"n.",ex:"The headquarters is located downtown.",m:"본사",mx:"본사는 시내에 위치해 있다.",cat:"business"},
+  {w:"subsidiary",pos:"n.",ex:"The company opened a subsidiary in Vietnam.",m:"자회사",mx:"그 회사는 베트남에 자회사를 열었다.",cat:"business"},
+
+  {w:"greet",pos:"v.",ex:"He greeted us with a warm smile.",m:"인사하다, 맞이하다",mx:"그는 따뜻한 미소로 우리를 맞이했다.",cat:"conversation"},
+  {w:"introduce",pos:"v.",ex:"Let me introduce myself first.",m:"소개하다",mx:"먼저 제 소개를 하겠습니다.",cat:"conversation"},
+  {w:"apologize",pos:"v.",ex:"I apologize for being late.",m:"사과하다",mx:"늦어서 죄송합니다.",cat:"conversation"},
+  {w:"compliment",pos:"n.",ex:"Thank you for the compliment.",m:"칭찬",mx:"칭찬해 주셔서 감사합니다.",cat:"conversation"},
+  {w:"chat",pos:"v.",ex:"We chatted for a while at the cafe.",m:"수다 떨다, 대화하다",mx:"우리는 카페에서 잠시 수다를 떨었다.",cat:"conversation"},
+  {w:"mention",pos:"v.",ex:"She mentioned that she was moving soon.",m:"언급하다",mx:"그녀는 곧 이사한다고 언급했다.",cat:"conversation"},
+  {w:"suggest",pos:"v.",ex:"I suggest we take a break.",m:"제안하다",mx:"잠시 쉬는 게 어떨까 제안합니다.",cat:"conversation"},
+  {w:"recommend",pos:"v.",ex:"Can you recommend a good restaurant?",m:"추천하다",mx:"좋은 식당 좀 추천해 주시겠어요?",cat:"conversation"},
+  {w:"agree",pos:"v.",ex:"I completely agree with you.",m:"동의하다",mx:"저는 당신 말에 전적으로 동의해요.",cat:"conversation"},
+  {w:"disagree",pos:"v.",ex:"I have to disagree on this point.",m:"동의하지 않다",mx:"이 부분에 대해서는 동의하기 어렵네요.",cat:"conversation"},
+  {w:"opinion",pos:"n.",ex:"What's your opinion on this?",m:"의견",mx:"이것에 대한 당신의 의견은 무엇인가요?",cat:"conversation"},
+  {w:"request",pos:"v.",ex:"He requested more information.",m:"요청하다",mx:"그는 더 많은 정보를 요청했다.",cat:"conversation"},
+  {w:"favor",pos:"n.",ex:"Can I ask you a favor?",m:"부탁",mx:"부탁 하나 드려도 될까요?",cat:"conversation"},
+  {w:"invite",pos:"v.",ex:"They invited us to the party.",m:"초대하다",mx:"그들은 우리를 파티에 초대했다.",cat:"conversation"},
+  {w:"turn down",pos:"v.",ex:"She turned down the offer politely.",m:"거절하다",mx:"그녀는 그 제안을 정중히 거절했다.",cat:"conversation"},
+  {w:"interrupt",pos:"v.",ex:"Sorry to interrupt, but may I ask something?",m:"방해하다, 끼어들다",mx:"끼어들어서 죄송한데, 뭐 좀 여쭤봐도 될까요?",cat:"conversation"},
+  {w:"clarify",pos:"v.",ex:"Could you clarify what you mean?",m:"명확히 하다",mx:"무슨 뜻인지 좀 더 명확히 해주시겠어요?",cat:"conversation"},
+  {w:"repeat",pos:"v.",ex:"Could you repeat that, please?",m:"반복하다",mx:"다시 한 번 말씀해 주시겠어요?",cat:"conversation"},
+  {w:"pronounce",pos:"v.",ex:"I can't pronounce this word correctly.",m:"발음하다",mx:"이 단어를 정확히 발음하지 못하겠어요.",cat:"conversation"},
+  {w:"fluent",pos:"adj.",ex:"She is fluent in three languages.",m:"유창한",mx:"그녀는 세 개 언어에 유창하다.",cat:"conversation"},
+  {w:"hesitate",pos:"v.",ex:"Don't hesitate to contact me.",m:"주저하다, 망설이다",mx:"망설이지 말고 저에게 연락하세요.",cat:"conversation"},
+  {w:"awkward",pos:"adj.",ex:"There was an awkward silence.",m:"어색한",mx:"어색한 침묵이 흘렀다.",cat:"conversation"},
+  {w:"polite",pos:"adj.",ex:"He gave a polite answer.",m:"공손한, 예의 바른",mx:"그는 예의 바르게 대답했다.",cat:"conversation"},
+  {w:"sarcasm",pos:"n.",ex:"I couldn't tell if that was sarcasm.",m:"비꼼, 풍자",mx:"그게 비꼬는 말인지 알 수가 없었다.",cat:"conversation"},
+  {w:"argue",pos:"v.",ex:"They argued about the plan.",m:"말다툼하다, 논쟁하다",mx:"그들은 계획에 대해 논쟁을 벌였다.",cat:"conversation"},
+  {w:"comfort",pos:"v.",ex:"She comforted her friend after the news.",m:"위로하다",mx:"그녀는 소식을 듣고 친구를 위로했다.",cat:"conversation"},
+  {w:"encourage",pos:"v.",ex:"He encouraged me to keep trying.",m:"격려하다",mx:"그는 계속 시도하라고 나를 격려했다.",cat:"conversation"},
+  {w:"complain",pos:"v.",ex:"She complained about the noise.",m:"불평하다",mx:"그녀는 소음에 대해 불평했다.",cat:"conversation"},
+  {w:"whisper",pos:"v.",ex:"He whispered something to me.",m:"속삭이다",mx:"그가 나에게 뭔가를 속삭였다.",cat:"conversation"},
+  {w:"mumble",pos:"v.",ex:"He mumbled an answer I couldn't hear.",m:"중얼거리다",mx:"그는 알아들을 수 없게 중얼거렸다.",cat:"conversation"},
+  {w:"converse",pos:"v.",ex:"It's hard to converse in a noisy place.",m:"대화하다",mx:"시끄러운 곳에서는 대화하기 힘들다.",cat:"conversation"},
+  {w:"nod",pos:"v.",ex:"She nodded in agreement.",m:"고개를 끄덕이다",mx:"그녀는 동의하며 고개를 끄덕였다.",cat:"conversation"},
+  {w:"gesture",pos:"n.",ex:"He explained it using hand gestures.",m:"몸짓, 손짓",mx:"그는 손짓을 사용해 그것을 설명했다.",cat:"conversation"},
+  {w:"small talk",pos:"n.",ex:"We made small talk before the meeting.",m:"가벼운 대화, 잡담",mx:"우리는 회의 전에 가벼운 대화를 나눴다.",cat:"conversation"},
+  {w:"catch up",pos:"v.",ex:"Let's catch up over coffee sometime.",m:"근황을 나누다",mx:"언제 커피 마시며 근황 얘기해요.",cat:"conversation"},
+  {w:"get along",pos:"v.",ex:"They get along really well.",m:"사이좋게 지내다",mx:"그들은 서로 정말 사이좋게 지낸다.",cat:"conversation"},
+  {w:"break the ice",pos:"v.",ex:"He told a joke to break the ice.",m:"어색함을 풀다",mx:"그는 어색함을 풀려고 농담을 했다.",cat:"conversation"},
+  {w:"figure of speech",pos:"n.",ex:"It's just a figure of speech, not literal.",m:"비유적 표현",mx:"그건 문자 그대로가 아니라 그냥 비유적인 표현이에요.",cat:"conversation"},
+  {w:"tone",pos:"n.",ex:"Watch your tone when you speak to her.",m:"어조, 말투",mx:"그녀에게 말할 때 말투를 조심하세요.",cat:"conversation"},
+  {w:"assume",pos:"v.",ex:"I assumed you already knew.",m:"추측하다, 짐작하다",mx:"저는 당신이 이미 알고 있을 거라 짐작했어요.",cat:"conversation"},
+  {w:"misunderstand",pos:"v.",ex:"I think you misunderstood me.",m:"오해하다",mx:"저를 오해하신 것 같아요.",cat:"conversation"},
+  {w:"point out",pos:"v.",ex:"She pointed out a mistake in the report.",m:"지적하다",mx:"그녀는 보고서의 실수를 지적했다.",cat:"conversation"},
+  {w:"bring up",pos:"v.",ex:"He brought up an interesting topic.",m:"화제를 꺼내다",mx:"그는 흥미로운 화제를 꺼냈다.",cat:"conversation"},
+  {w:"change the subject",pos:"v.",ex:"She quickly changed the subject.",m:"화제를 바꾸다",mx:"그녀는 재빨리 화제를 바꿨다.",cat:"conversation"},
+  {w:"go along with",pos:"v.",ex:"I decided to go along with the plan.",m:"동의하여 따르다",mx:"나는 그 계획에 동의하여 따르기로 했다.",cat:"conversation"},
+  {w:"speak up",pos:"v.",ex:"Please speak up, I can't hear you.",m:"더 크게 말하다",mx:"안 들려요, 좀 더 크게 말씀해 주세요.",cat:"conversation"},
+  {w:"get to the point",pos:"v.",ex:"Let's get to the point quickly.",m:"본론으로 들어가다",mx:"빨리 본론으로 들어갑시다.",cat:"conversation"},
+  {w:"in other words",pos:"phr.",ex:"In other words, we need more time.",m:"다시 말해서",mx:"다시 말해서, 우리는 시간이 더 필요합니다.",cat:"conversation"},
+  {w:"by the way",pos:"phr.",ex:"By the way, did you finish the report?",m:"그런데",mx:"그런데, 보고서는 끝냈어요?",cat:"conversation"},
+  {w:"get in touch",pos:"v.",ex:"Please get in touch if you have questions.",m:"연락하다",mx:"질문 있으시면 연락 주세요.",cat:"conversation"},
+
+  {w:"passport",pos:"n.",ex:"Don't forget to bring your passport.",m:"여권",mx:"여권 챙기는 것 잊지 마세요.",cat:"trip"},
+  {w:"visa",pos:"n.",ex:"You need a visa to enter this country.",m:"비자",mx:"이 나라에 입국하려면 비자가 필요하다.",cat:"trip"},
+  {w:"luggage",pos:"n.",ex:"My luggage didn't arrive at the airport.",m:"짐, 수하물",mx:"내 짐이 공항에 도착하지 않았다.",cat:"trip"},
+  {w:"suitcase",pos:"n.",ex:"I packed everything into one suitcase.",m:"여행 가방",mx:"나는 모든 것을 여행 가방 하나에 챙겼다.",cat:"trip"},
+  {w:"backpack",pos:"n.",ex:"He travels with just a small backpack.",m:"배낭",mx:"그는 작은 배낭 하나만 들고 여행한다.",cat:"trip"},
+  {w:"check-in",pos:"n.",ex:"Check-in starts three hours before the flight.",m:"탑승 수속",mx:"탑승 수속은 비행기 출발 3시간 전에 시작된다.",cat:"trip"},
+  {w:"check-out",pos:"n.",ex:"Check-out time is at eleven in the morning.",m:"퇴실",mx:"퇴실 시간은 오전 11시입니다.",cat:"trip"},
+  {w:"layover",pos:"n.",ex:"We had a three-hour layover in Tokyo.",m:"경유",mx:"우리는 도쿄에서 3시간 경유했다.",cat:"trip"},
+  {w:"jet lag",pos:"n.",ex:"I'm still suffering from jet lag.",m:"시차 적응 문제",mx:"나는 아직 시차 적응이 안 되고 있다.",cat:"trip"},
+  {w:"sightseeing",pos:"n.",ex:"We went sightseeing around the old town.",m:"관광",mx:"우리는 구시가지를 관광했다.",cat:"trip"},
+  {w:"landmark",pos:"n.",ex:"The tower is a famous landmark in the city.",m:"랜드마크, 명소",mx:"그 탑은 도시의 유명한 랜드마크다.",cat:"trip"},
+  {w:"souvenir",pos:"n.",ex:"I bought a souvenir for my family.",m:"기념품",mx:"나는 가족을 위해 기념품을 샀다.",cat:"trip"},
+  {w:"currency exchange",pos:"n.",ex:"There's a currency exchange near the station.",m:"환전(소)",mx:"역 근처에 환전소가 있다.",cat:"trip"},
+  {w:"exchange rate",pos:"n.",ex:"The exchange rate changes every day.",m:"환율",mx:"환율은 매일 변동된다.",cat:"trip"},
+  {w:"tour guide",pos:"n.",ex:"Our tour guide spoke three languages.",m:"여행 가이드",mx:"우리 여행 가이드는 3개 언어를 구사했다.",cat:"trip"},
+  {w:"package tour",pos:"n.",ex:"We booked a package tour to Jeju.",m:"패키지 여행",mx:"우리는 제주도 패키지 여행을 예약했다.",cat:"trip"},
+  {w:"guesthouse",pos:"n.",ex:"We stayed at a cozy guesthouse.",m:"게스트하우스",mx:"우리는 아늑한 게스트하우스에 묵었다.",cat:"trip"},
+  {w:"hostel",pos:"n.",ex:"The hostel was cheap but clean.",m:"호스텔",mx:"그 호스텔은 저렴했지만 깨끗했다.",cat:"trip"},
+  {w:"road trip",pos:"n.",ex:"We took a road trip along the coast.",m:"자동차 여행",mx:"우리는 해안을 따라 자동차 여행을 했다.",cat:"trip"},
+  {w:"cruise",pos:"n.",ex:"They went on a cruise around the islands.",m:"크루즈 여행",mx:"그들은 섬들을 도는 크루즈 여행을 갔다.",cat:"trip"},
+  {w:"ferry",pos:"n.",ex:"We took a ferry to the island.",m:"여객선, 페리",mx:"우리는 그 섬까지 페리를 타고 갔다.",cat:"trip"},
+  {w:"boarding pass",pos:"n.",ex:"Show your boarding pass at the gate.",m:"탑승권",mx:"탑승구에서 탑승권을 보여 주세요.",cat:"trip"},
+  {w:"security check",pos:"n.",ex:"The line for security check was long.",m:"보안 검색",mx:"보안 검색 줄이 길었다.",cat:"trip"},
+  {w:"terminal",pos:"n.",ex:"Our flight departs from Terminal 2.",m:"터미널",mx:"우리 항공편은 제2터미널에서 출발한다.",cat:"trip"},
+  {w:"gate",pos:"n.",ex:"The gate number changed at the last minute.",m:"탑승구",mx:"탑승구 번호가 마지막 순간에 바뀌었다.",cat:"trip"},
+  {w:"delay",pos:"n.",ex:"There was a two-hour delay.",m:"지연",mx:"두 시간의 지연이 있었다.",cat:"trip"},
+  {w:"cancellation",pos:"n.",ex:"The flight cancellation ruined our plans.",m:"취소",mx:"항공편 취소로 우리 계획이 틀어졌다.",cat:"trip"},
+  {w:"overbooked",pos:"adj.",ex:"The flight was overbooked.",m:"초과 예약된",mx:"그 항공편은 초과 예약되어 있었다.",cat:"trip"},
+  {w:"aisle seat",pos:"n.",ex:"I prefer an aisle seat.",m:"통로 좌석",mx:"저는 통로 좌석을 선호해요.",cat:"trip"},
+  {w:"window seat",pos:"n.",ex:"She always books a window seat.",m:"창가 좌석",mx:"그녀는 항상 창가 좌석을 예약한다.",cat:"trip"},
+  {w:"carry-on",pos:"n.",ex:"Keep your carry-on under the seat.",m:"기내 반입 수하물",mx:"기내 반입 수하물은 좌석 아래에 두세요.",cat:"trip"},
+  {w:"checked baggage",pos:"n.",ex:"Checked baggage must be under 23kg.",m:"위탁 수하물",mx:"위탁 수하물은 23kg 이하여야 한다.",cat:"trip"},
+  {w:"customs declaration",pos:"n.",ex:"Fill out the customs declaration form.",m:"세관 신고서",mx:"세관 신고서를 작성해 주세요.",cat:"trip"},
+  {w:"duty-free",pos:"adj.",ex:"He bought perfume at the duty-free shop.",m:"면세의",mx:"그는 면세점에서 향수를 샀다.",cat:"trip"},
+  {w:"local cuisine",pos:"n.",ex:"Trying the local cuisine is part of the fun.",m:"현지 음식",mx:"현지 음식을 맛보는 것도 여행의 재미다.",cat:"trip"},
+  {w:"street food",pos:"n.",ex:"The street food here is amazing.",m:"길거리 음식",mx:"이곳 길거리 음식은 정말 맛있다.",cat:"trip"},
+  {w:"phrasebook",pos:"n.",ex:"I always carry a phrasebook when traveling.",m:"회화집",mx:"나는 여행할 때 항상 회화집을 가지고 다닌다.",cat:"trip"},
+  {w:"scenic view",pos:"n.",ex:"The hotel room had a scenic view.",m:"경치, 전망",mx:"그 호텔 방은 멋진 전망을 가지고 있었다.",cat:"trip"},
+  {w:"hiking trail",pos:"n.",ex:"There's a popular hiking trail near the lake.",m:"등산로",mx:"호수 근처에 인기 있는 등산로가 있다.",cat:"trip"},
+  {w:"tourist attraction",pos:"n.",ex:"The palace is a major tourist attraction.",m:"관광 명소",mx:"그 궁전은 주요 관광 명소다.",cat:"trip"},
+  {w:"guided tour",pos:"n.",ex:"We joined a guided tour of the museum.",m:"가이드 동반 투어",mx:"우리는 박물관 가이드 투어에 참여했다.",cat:"trip"},
+  {w:"travel insurance",pos:"n.",ex:"It's wise to buy travel insurance.",m:"여행자 보험",mx:"여행자 보험에 가입하는 것이 현명하다.",cat:"trip"},
+  {w:"local currency",pos:"n.",ex:"Exchange some money for local currency.",m:"현지 통화",mx:"돈을 현지 통화로 좀 환전하세요.",cat:"trip"},
+  {w:"tip",pos:"n.",ex:"Tipping is not common in this country.",m:"팁",mx:"이 나라에서는 팁을 주는 것이 흔하지 않다.",cat:"trip"},
+  {w:"public transportation",pos:"n.",ex:"Public transportation here is very convenient.",m:"대중교통",mx:"이곳 대중교통은 매우 편리하다.",cat:"trip"},
+  {w:"one-way ticket",pos:"n.",ex:"I bought a one-way ticket to Busan.",m:"편도 티켓",mx:"나는 부산행 편도 티켓을 샀다.",cat:"trip"},
+  {w:"round-trip",pos:"adj.",ex:"A round-trip ticket is cheaper than two one-ways.",m:"왕복의",mx:"왕복 티켓이 편도 두 장보다 저렴하다.",cat:"trip"},
+  {w:"detour",pos:"n.",ex:"We took a detour because of road work.",m:"우회로",mx:"우리는 도로 공사 때문에 우회로로 갔다.",cat:"trip"},
+  {w:"lost and found",pos:"n.",ex:"I found my wallet at the lost and found.",m:"분실물 보관소",mx:"나는 분실물 보관소에서 지갑을 찾았다.",cat:"trip"},
+  {w:"vaccination",pos:"n.",ex:"Some countries require proof of vaccination.",m:"예방접종",mx:"일부 국가는 예방접종 증명서를 요구한다.",cat:"trip"}
+];
+
+const CATS = [
+  {id:"all", label:"전체"},
+  {id:"office", label:"사무"},
+  {id:"meeting", label:"회의"},
+  {id:"hr", label:"인사"},
+  {id:"contract", label:"계약"},
+  {id:"finance", label:"재무"},
+  {id:"travel", label:"출장"},
+  {id:"logistics", label:"물류"},
+  {id:"customer", label:"고객응대"},
+  {id:"marketing", label:"마케팅"},
+  {id:"business", label:"비즈니스"},
+  {id:"conversation", label:"일상 회화"},
+  {id:"trip", label:"여행"}
+];
+
+let currentCat = "all";
+let deck = [];
+let pos = 0;
+let flipped = false;
+let known = new Set(JSON.parse(localStorage.getItem("toeicvocab_known") || "[]"));
+
+const chipsEl = document.getElementById("chips");
+const cardEl = document.getElementById("card");
+const wordText = document.getElementById("wordText");
+const posText = document.getElementById("posText");
+const posTextBack = document.getElementById("posTextBack");
+const exampleText = document.getElementById("exampleText");
+const meaningText = document.getElementById("meaningText");
+const meaningExText = document.getElementById("meaningExText");
+const frontIndex = document.getElementById("frontIndex");
+const backIndex = document.getElementById("backIndex");
+const statPos = document.getElementById("statPos");
+const statTotal = document.getElementById("statTotal");
+const statKnown = document.getElementById("statKnown");
+const progressFill = document.getElementById("progressFill");
+
+function buildChips(){
+  chipsEl.innerHTML = "";
+  CATS.forEach(c=>{
+    const el = document.createElement("div");
+    el.className = "chip" + (c.id===currentCat ? " active" : "");
+    el.textContent = c.label;
+    el.onclick = ()=>{ currentCat = c.id; pos = 0; flipped=false; buildDeck(); buildChips(); render(); };
+    chipsEl.appendChild(el);
+  });
+}
+
+function buildDeck(){
+  deck = currentCat === "all" ? [...VOCAB] : VOCAB.filter(v=>v.cat===currentCat);
+}
+
+function shuffle(){
+  for(let i=deck.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]]=[deck[j],deck[i]];
+  }
+  pos = 0; flipped=false; render();
+}
+
+function render(){
+  if(deck.length===0){ return; }
+  const item = deck[pos];
+  wordText.textContent = item.w;
+  posText.textContent = item.pos;
+  posTextBack.textContent = item.pos;
+  exampleText.textContent = item.ex;
+  meaningText.textContent = item.m;
+  meaningExText.textContent = item.mx;
+  const idxStr = String(pos+1).padStart(3,"0");
+  frontIndex.textContent = idxStr;
+  backIndex.textContent = idxStr;
+  cardEl.classList.toggle("flipped", flipped);
+
+  statPos.textContent = pos+1;
+  statTotal.textContent = deck.length;
+  const knownInDeck = deck.filter(d=>known.has(d.w)).length;
+  statKnown.textContent = knownInDeck;
+  progressFill.style.width = (deck.length ? (knownInDeck/deck.length*100) : 0) + "%";
+}
+
+function next(){
+  pos = (pos+1) % deck.length;
+  flipped = false;
+  render();
+}
+function prev(){
+  pos = (pos-1+deck.length) % deck.length;
+  flipped = false;
+  render();
+}
+
+cardEl.addEventListener("click", ()=>{ flipped = !flipped; render(); });
+
+document.getElementById("btnKnown").onclick = (e)=>{
+  e.stopPropagation();
+  known.add(deck[pos].w);
+  localStorage.setItem("toeicvocab_known", JSON.stringify([...known]));
+  next();
+};
+document.getElementById("btnAgain").onclick = (e)=>{
+  e.stopPropagation();
+  known.delete(deck[pos].w);
+  localStorage.setItem("toeicvocab_known", JSON.stringify([...known]));
+  next();
+};
+document.getElementById("btnPrev").onclick = (e)=>{ e.stopPropagation(); prev(); };
+document.getElementById("btnShuffle").onclick = (e)=>{ e.stopPropagation(); shuffle(); };
+document.getElementById("btnReset").onclick = (e)=>{
+  e.stopPropagation();
+  if(confirm("외운 단어 기록을 모두 초기화할까요?")){
+    known.clear();
+    localStorage.setItem("toeicvocab_known", JSON.stringify([]));
+    render();
+  }
+};
+
+buildChips();
+buildDeck();
+render();
+</script>
+</body>
+</html>
